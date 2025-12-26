@@ -1,0 +1,18 @@
+Использование скрипта deploy_to_github.sh:
+
+1. Простой способ (скрипт спросит URL репозитория):
+   ./deploy_to_github.sh
+
+2. С токеном GitHub:
+   GITHUB_TOKEN=your_token ./deploy_to_github.sh
+
+3. Полная настройка:
+   GITHUB_TOKEN=your_token \
+   GITHUB_REPO_URL=https://github.com/username/repo.git \
+   GITHUB_BRANCH=main \
+   ./deploy_to_github.sh
+
+Перед запуском убедитесь что:
+- Создан репозиторий на GitHub
+- У вас есть права на запись
+- Git настроен (или используйте переменные GIT_USER_NAME и GIT_USER_EMAIL)
