@@ -1,16 +1,18 @@
 # Инструкция по загрузке на GitHub
 
-## Быстрый способ
+## Быстрый способ (SSH - рекомендуется)
 
-Просто запустите скрипт:
+Если у вас SSH ключ добавлен в GitHub (проверено: ✅ ваш ключ работает):
 
 ```bash
 ./deploy_to_github.sh
 ```
 
-Скрипт попросит ввести URL репозитория, если он еще не настроен.
+Скрипт предложит выбрать SSH или HTTPS. Выберите SSH (вариант 1) и введите:
+- Имя пользователя GitHub
+- Название репозитория
 
-## С использованием токена GitHub
+## С использованием токена GitHub (HTTPS)
 
 Если у вас есть Personal Access Token:
 
@@ -35,7 +37,23 @@ GITHUB_TOKEN=your_token_here GITHUB_REPO_URL=https://github.com/username/grades-
 - `GIT_USER_EMAIL` - email для git config
 - `FORCE_COMMIT` - принудительный коммит даже если нет изменений
 
-## Пример полной команды
+## Примеры использования
+
+### SSH (рекомендуется, если ключ добавлен в GitHub)
+
+```bash
+./deploy_to_github.sh
+# Выберите вариант 1 (SSH)
+# Введите: username и название репозитория
+```
+
+Или напрямую:
+
+```bash
+GITHUB_REPO_URL=git@github.com:username/grades-api.git ./deploy_to_github.sh
+```
+
+### HTTPS с токеном
 
 ```bash
 GITHUB_TOKEN=ghp_xxxxxxxxxxxx \
@@ -44,4 +62,14 @@ GITHUB_BRANCH=main \
 COMMIT_MESSAGE="Initial commit" \
 ./deploy_to_github.sh
 ```
+
+## Проверка SSH подключения
+
+Ваш SSH ключ уже настроен и работает! Проверить можно командой:
+
+```bash
+ssh -T git@github.com
+```
+
+Должно вывести: "Hi [username]! You've successfully authenticated..."
 

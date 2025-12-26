@@ -57,12 +57,28 @@ fi
 # Настройка remote
 if ! git remote get-url origin &> /dev/null; then
     if [ -z "$GITHUB_REPO_URL" ]; then
-        read -p "Введите URL GitHub репозитория (например: https://github.com/username/grades-api.git): " REPO_URL
-        GITHUB_REPO_URL="$REPO_URL"
+        echo -e "${YELLOW}Выберите способ подключения:${NC}"
+        echo "1) SSH (рекомендуется, если SSH ключ добавлен в GitHub)"
+        echo "2) HTTPS (с токеном или без)"
+        read -p "Ваш выбор (1/2, по умолчанию 1): " CONNECTION_TYPE
+        CONNECTION_TYPE=${CONNECTION_TYPE:-1}
+        
+        read -p "Введите имя пользователя GitHub: " GITHUB_USERNAME
+        read -p "Введите название репозитория (например: grades-api): " REPO_NAME
+        
+        if [ "$CONNECTION_TYPE" = "1" ]; then
+            GITHUB_REPO_URL="git@github.com:${GITHUB_USERNAME}/${REPO_NAME}.git"
+            echo -e "${GREEN}Используется SSH подключение${NC}"
+        else
+            GITHUB_REPO_URL="https://github.com/${GITHUB_USERNAME}/${REPO_NAME}.git"
+            if [ -z "$GITHUB_TOKEN" ]; then
+                read -p "Введите GitHub токен (или нажмите Enter для HTTPS без токена): " GITHUB_TOKEN
+            fi
+        fi
     fi
     
     # Если используется токен, заменяем URL
-    if [ -n "$GITHUB_TOKEN" ]; then
+    if [ -n "$GITHUB_TOKEN" ] && [[ "$GITHUB_REPO_URL" == https://* ]]; then
         REPO_NAME=$(echo "$GITHUB_REPO_URL" | sed 's|https://github.com/||' | sed 's|.git||')
         GITHUB_REPO_URL="https://${GITHUB_TOKEN}@github.com/${REPO_NAME}.git"
     fi
@@ -70,7 +86,7 @@ if ! git remote get-url origin &> /dev/null; then
     echo -e "${YELLOW}📝 Настройка remote репозитория...${NC}"
     git remote add origin "$GITHUB_REPO_URL" || git remote set-url origin "$GITHUB_REPO_URL"
 else
-    if [ -n "$GITHUB_TOKEN" ]; then
+    if [ -n "$GITHUB_TOKEN" ] && [[ "$(git remote get-url origin)" == https://* ]]; then
         CURRENT_URL=$(git remote get-url origin)
         REPO_NAME=$(echo "$CURRENT_URL" | sed 's|https://github.com/||' | sed 's|.git||' | sed 's|.*@github.com/||')
         NEW_URL="https://${GITHUB_TOKEN}@github.com/${REPO_NAME}.git"
@@ -129,5 +145,5 @@ else
     exit 1
 fi
 
-REPO_URL=$(git remote get-url origin | sed 's|https://.*@github.com/|https://github.com/|' | sed 's|.git||')
+REPO_URL=$(git remote get-url origin | sed 's|git@github.com:|https://github.com/|' | sed 's|https://.*@github.com/|https://github.com/|' | sed 's|.git||')
 echo -e "${GREEN}🔗 Репозиторий: ${REPO_URL}${NC}"
